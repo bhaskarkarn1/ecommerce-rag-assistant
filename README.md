@@ -82,3 +82,5 @@ This is the same architecture used in **modern AI search systems** (ChatGPT RAG,
 {
   "question": "best laptop under 50000"
 }
+
+uvicorn backend.api:app --reload
