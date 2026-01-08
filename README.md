@@ -1,86 +1,49 @@
-# 🛒 AI E-Commerce Shopping Assistant (RAG-based)
+## Problem Motivation
+Large language models often hallucinate or provide incomplete answers when answering domain-specific queries such as product search. Retrieval-Augmented Generation (RAG) is commonly used to ground LLM responses in external data, but its behavior under real-world e-commerce queries is not well understood.
 
-An AI-powered **E-Commerce Product Recommendation Assistant** that understands **natural language queries** and returns **relevant product suggestions** using **vector search + LLMs**.
+## Research Questions
+This project explores:
+1. How much does retrieval improve answer quality compared to using an LLM alone?
+2. How sensitive is RAG performance to retrieval parameters such as top-k and chunk size?
+3. What types of queries cause RAG systems to fail or partially hallucinate?
 
-Built to handle **large-scale datasets (~7.8 lakh products)** efficiently using a **Retrieval-Augmented Generation (RAG)** pipeline.
+## System Overview
+We implement a standard RAG pipeline consisting of:
+- Dense retrieval using sentence embeddings
+- FAISS-based vector search over a large product catalog
+- LLM-based response generation conditioned on retrieved context
 
----
+## Experimental Setup
+- Dataset: ~780K Amazon product entries
+- Embedding model: all-MiniLM-L6-v2 (384-d)
+- Vector index: FAISS IndexFlatL2
+- LLM: Llama-3 via Ollama
+- Queries: Manually curated set of real-world e-commerce queries
 
-## 🚀 Features
+## Experiments
+We compare:
+- LLM-only responses (no retrieval)
+- RAG with varying top-k values (k = 3, 5, 10)
 
-- 🔍 Natural language product search (e.g. *"best headphones under 1000"*)
-- ⚡ Ultra-fast similarity search using **FAISS**
-- 🧠 Context-aware recommendations via **Llama-3 (Ollama)**
-- 🎯 Accurate results grounded in real product data (no hallucinations)
-- 🖥️ Clean, modern **Streamlit UI**
-- 🔌 Decoupled backend using **FastAPI**
+Evaluation is performed via qualitative analysis of relevance, grounding, and hallucination.
 
----
+## Observations
+- Retrieval significantly reduces hallucinations for factual queries.
+- Increasing top-k improves recall but often introduces noisy context.
+- Ambiguous price-based queries remain challenging.
 
-## 🧠 System Architecture (RAG Pipeline)
+## Error Analysis
+Common failure modes include:
+- Retrieval of semantically similar but irrelevant products
+- Partial answers when product attributes are missing
+- Overconfident responses for under-specified queries
 
+## Limitations
+- Evaluation is qualitative and limited in scale
+- Single-domain (e-commerce) dataset
+- English-only queries
 
-This is the same architecture used in **modern AI search systems** (ChatGPT RAG, Amazon recommendations, enterprise AI assistants).
-
----
-
-## 🛠️ Tech Stack
-
-### Backend
-- **Python**
-- **FAISS** – Fast vector similarity search
-- **Sentence Transformers** (`all-MiniLM-L6-v2`)
-- **FastAPI** – API server
-- **Ollama (Llama-3)** – Local LLM inference
-- **Pandas** – Data preprocessing
-
-### Frontend
-- **Streamlit**
-- Custom CSS (dark theme, product cards, icons)
-
-### Other
-- **Git & GitHub**
-- `.gitignore` for large files
-
----
-
-## 📊 Dataset
-
-- ~ **7,80,000 Amazon products**
-- Product titles, descriptions, categories
-- Missing values handled during preprocessing
-
-### Data Cleaning Steps
-- Removed invalid rows
-- Filled missing titles/descriptions
-- Combined text fields for better embeddings
-- Saved processed CSV for indexing
-
----
-
-## 📦 Vector Store (FAISS)
-
-- Embedding Model: `all-MiniLM-L6-v2` (384-dim)
-- Index Type: `IndexFlatL2`
-- Stored locally as:
-
-
-
-- Batched embedding generation for memory efficiency
-
----
-
-## 🔌 API Design (FastAPI)
-
-### Endpoint
-
-
-
-
-### Input
-```json
-{
-  "question": "best laptop under 50000"
-}
-
-uvicorn backend.api:app --reload
+## Future Work
+- Multilingual product catalogs (Indic languages)
+- Lightweight automatic evaluation metrics
+- Hybrid sparse + dense retrieval
